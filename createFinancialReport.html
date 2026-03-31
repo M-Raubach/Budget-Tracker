@@ -3,16 +3,293 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+    <title>Create Financial Report</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Financial Report</h1>
-    <p>This is the page where the financial report based on the budget will display.</p>
+
+    <div class="container">
+        <h1>Create Financial Report</h1>
+        <p>Select a time period to generate your financial summary.</p>
+
+        <div class="form-section">
+
+            <!-- Dropdown for choosing monthly, weekly, or yearly report -->
+            <!-- onchange fires updateDateInput() every time the user picks a new option -->
+            <label for="timePeriod">Time Period</label>
+            <select id="timePeriod" onchange="updateDateInput()">
+                <option value="">-- Select --</option>
+                <option value="monthly">Monthly</option>
+                <option value="weekly">Weekly</option>
+                <option value="yearly">Yearly</option>
+            </select>
+
+            <!-- This section is hidden by default and only appears after a time period is chosen -->
+            <!-- The label and input inside it swap out depending on what the user selected -->
+            <div id="dateInputSection" style="display:none;">
+                <label id="dateLabel">Select Period</label>
+                <!-- Only one of these three inputs will be visible at a time -->
+                <input type="month"  id="monthInput" style="display:none;">
+                <input type="week"   id="weekInput"  style="display:none;">
+                <input type="number" id="yearInput"  placeholder="e.g. 2026" min="2000" max="2100" style="display:none;">
+            </div>
+
+            <div class="buttons">
+                <button type="button" onclick="generateReport()">Generate Report</button>
+            </div>
+        </div>
+
+        <!-- Report output section - hidden until the user clicks Generate Report -->
+        <div id="reportOutput" style="display:none;">
+
+            <!-- Title gets filled in by JS, e.g. "Monthly Report — March 2026" -->
+            <h2 id="reportTitle"></h2>
+
+            <!-- Summary table showing the three main financial totals -->
+            <table>
+                <thead>
+                    <tr>
+                        <th>Total Income</th>
+                        <th>Total Expenses</th>
+                        <th>Remaining Balance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <!-- These three cells get their values filled in by renderReport() -->
+                        <td id="rIncome">$0.00</td>
+                        <td id="rExpenses">$0.00</td>
+                        <td id="rBalance">$0.00</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>Category Breakdown</h2>
+            <!-- Second table showing spending broken down by category -->
+            <table>
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <!-- tbody is empty here - rows are built and injected by renderReport() -->
+                <tbody id="categoryList">
+                </tbody>
+            </table>
+
+            <div class="buttons">
+                <!-- window.print() is a built-in browser function that opens the print dialog -->
+                <button type="button" onclick="window.print()">Print Report</button>
+            </div>
+        </div>
+    </div>
 
     <a href="budgetDataDisplay.html" class="button">Return to Budget Display Page</a>
+
+    <script>
+        // Should the team prefer, I can move the javascipt portion to a seperate file
+        
+        // ─── Sample Data ──────────────────────────────────────────────────────────
+        // Hardcoded transactions used for testing since the backend isn't connected yet
+        // Each object has: type (income/expense), amount, category, date, description
+        const transactions = [
+            { type: 'income',  amount: 2500, category: 'Paycheck',  date: '2026-03-01', description: 'March Paycheck' },
+            { type: 'income',  amount: 200,  category: 'Freelance', date: '2026-03-10', description: 'Side work' },
+            { type: 'expense', amount: 950,  category: 'Rent',      date: '2026-03-01', description: 'March Rent' },
+            { type: 'expense', amount: 85,   category: 'Groceries', date: '2026-03-05', description: 'Grocery Store' },
+            { type: 'expense', amount: 45,   category: 'Groceries', date: '2026-03-15', description: 'Weekly Groceries' },
+            { type: 'expense', amount: 60,   category: 'Utilities', date: '2026-03-08', description: 'Electric Bill' },
+            { type: 'expense', amount: 30,   category: 'Gas',       date: '2026-03-12', description: 'Gas Station' },
+            { type: 'income',  amount: 2500, category: 'Paycheck',  date: '2026-02-01', description: 'February Paycheck' },
+            { type: 'expense', amount: 950,  category: 'Rent',      date: '2026-02-01', description: 'February Rent' },
+            { type: 'expense', amount: 110,  category: 'Groceries', date: '2026-02-10', description: 'Grocery Run' },
+            { type: 'income',  amount: 2500, category: 'Paycheck',  date: '2026-01-01', description: 'January Paycheck' },
+            { type: 'expense', amount: 950,  category: 'Rent',      date: '2026-01-01', description: 'January Rent' },
+            { type: 'expense', amount: 75,   category: 'Groceries', date: '2026-01-18', description: 'Grocery Store' },
+            { type: 'expense', amount: 120,  category: 'Dining',    date: '2026-01-22', description: 'Restaurants' },
+            { type: 'income',  amount: 300,  category: 'Freelance', date: '2026-03-23', description: 'Weekly freelance' },
+            { type: 'expense', amount: 55,   category: 'Groceries', date: '2026-03-24', description: 'Grocery Store' },
+            { type: 'expense', amount: 20,   category: 'Gas',       date: '2026-03-25', description: 'Gas Station' }
+        ];
+
+        // ─── updateDateInput() ────────────────────────────────────────────────────
+        // Runs every time the user changes the time period dropdown
+        // Shows the correct date input (month/week/year) and hides the other two
+        function updateDateInput() {
+            const period = document.getElementById('timePeriod').value;
+            const section = document.getElementById('dateInputSection');
+            const monthInput = document.getElementById('monthInput');
+            const weekInput  = document.getElementById('weekInput');
+            const yearInput  = document.getElementById('yearInput');
+            const dateLabel  = document.getElementById('dateLabel');
+
+            // Hide all three inputs first so we start clean
+            monthInput.style.display = 'none';
+            weekInput.style.display  = 'none';
+            yearInput.style.display  = 'none';
+
+            // If nothing is selected, hide the whole date section and stop here
+            if (!period) { section.style.display = 'none'; return; }
+
+            // Show the date section now that a period has been chosen
+            section.style.display = 'block';
+
+            // Show only the input that matches the selected period
+            if (period === 'monthly') {
+                dateLabel.textContent = 'Select Month';
+                monthInput.style.display = 'block';
+                monthInput.value = '2026-03'; // Default to March 2026 for testing
+            } else if (period === 'weekly') {
+                dateLabel.textContent = 'Select Week';
+                weekInput.style.display = 'block';
+                weekInput.value = '2026-W13'; // Default to week 13 for testing
+            } else if (period === 'yearly') {
+                dateLabel.textContent = 'Select Year';
+                yearInput.style.display = 'block';
+                yearInput.value = '2026'; // Default to 2026 for testing
+            }
+        }
+
+        // ─── generateReport() ─────────────────────────────────────────────────────
+        // Runs when the user clicks Generate Report
+        // Reads the selected period and date, filters the transactions, then calls renderReport()
+        function generateReport() {
+            const period = document.getElementById('timePeriod').value;
+            if (!period) { alert('Please select a time period.'); return; }
+
+            // filtered will hold only the transactions matching the selected period
+            let filtered = [];
+            let titleText = '';
+
+            if (period === 'monthly') {
+                const val = document.getElementById('monthInput').value; // e.g. "2026-03"
+                if (!val) { alert('Please select a month.'); return; }
+
+                // Keep only transactions whose date starts with the selected year-month
+                filtered = transactions.filter(t => t.date.startsWith(val));
+
+                // Build a readable title like "Monthly Report — March 2026"
+                const [yr, mo] = val.split('-');
+                titleText = 'Monthly Report — ' + new Date(yr, mo - 1).toLocaleString('default', { month: 'long', year: 'numeric' });
+
+            } else if (period === 'weekly') {
+                const val = document.getElementById('weekInput').value; // e.g. "2026-W13"
+                if (!val) { alert('Please select a week.'); return; }
+
+                // Split "2026-W13" into year=2026 and week=13
+                const [year, week] = val.split('-W').map(Number);
+
+                // Get the actual start and end dates for that week number
+                const { start, end } = getWeekRange(year, week);
+
+                // Keep only transactions that fall within that date range
+                filtered = transactions.filter(t => {
+                    const d = new Date(t.date);
+                    return d >= start && d <= end;
+                });
+
+                titleText = 'Weekly Report — Week ' + week + ', ' + year;
+
+            } else if (period === 'yearly') {
+                const val = document.getElementById('yearInput').value; // e.g. "2026"
+                if (!val) { alert('Please enter a year.'); return; }
+
+                // Keep only transactions from the selected year
+                filtered = transactions.filter(t => t.date.startsWith(val));
+                titleText = 'Yearly Report — ' + val;
+            }
+
+            // Pass the filtered list and title to renderReport() to display the results
+            renderReport(filtered, titleText);
+        }
+
+        // ─── renderReport() ───────────────────────────────────────────────────────
+        // Takes a filtered list of transactions and builds the report output on the page
+        // Does the actual math. Uses filter() to separate income from expenses, then reduce() to add them up. 
+        // The category breakdown builds an object by looping through expenses and grouping by category name, then injects a table row for each one.
+        function renderReport(data, title) {
+            // Make the report section visible
+            document.getElementById('reportOutput').style.display = 'block';
+
+            // Set the report title (e.g. "Monthly Report — March 2026")
+            document.getElementById('reportTitle').textContent = title;
+
+            // Add up all income transactions using reduce()
+            // reduce() loops through the array and accumulates a running total (s) by adding each amount
+            const income   = data.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+
+            // Same for expenses
+            const expenses = data.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+
+            // Remaining balance is simply income minus expenses
+            const balance  = income - expenses;
+
+            // Push the calculated values into the summary table cells
+            document.getElementById('rIncome').textContent   = fmt(income);
+            document.getElementById('rExpenses').textContent = fmt(expenses);
+            document.getElementById('rBalance').textContent  = fmt(balance);
+
+            // ── Category Breakdown ──
+            // Build an object where each key is a category name and value is the total spent
+            // e.g. { Rent: 950, Groceries: 185, Gas: 30 }
+            const cats = {};
+            data.filter(t => t.type === 'expense').forEach(t => {
+                // If the category already exists, add to it; otherwise start it at 0 then add
+                cats[t.category] = (cats[t.category] || 0) + t.amount;
+            });
+
+            const tbody = document.getElementById('categoryList');
+            tbody.innerHTML = ''; // Clear any previous results before adding new rows
+
+            // If there are no expense categories, show a message instead of an empty table
+            if (Object.keys(cats).length === 0) {
+                tbody.innerHTML = '<tr><td colspan="2">No expense data for this period.</td></tr>';
+                return;
+            }
+
+            // Sort categories from highest to lowest spending, then build a table row for each
+            Object.entries(cats)
+                .sort((a, b) => b[1] - a[1])
+                .forEach(([cat, total]) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = '<td>' + cat + '</td><td>' + fmt(total) + '</td>';
+                    tbody.appendChild(row);
+                });
+        }
+
+        // ─── fmt() ────────────────────────────────────────────────────────────────
+        // Helper to format a number as a dollar amount with two decimal places
+        // e.g. fmt(1245) returns "$1,245.00"
+        function fmt(n) {
+            return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        // ─── getWeekRange() ───────────────────────────────────────────────────────
+        // Given a year and ISO week number, returns the start (Monday) and end (Sunday) dates
+        // This helper is needed because the week input gives us "2026-W13" not actual dates
+        function getWeekRange(year, week) {
+            // Jan 4 is always in week 1 of any year (ISO standard)
+            const jan4 = new Date(year, 0, 4);
+
+            // Find what day of the week Jan 4 falls on (convert Sunday=0 to 7)
+            const dayOfWeek = jan4.getDay() || 7;
+
+            // Step back to the Monday of week 1
+            const startOfWeek1 = new Date(jan4);
+            startOfWeek1.setDate(jan4.getDate() - dayOfWeek + 1);
+
+            // Jump forward (week - 1) full weeks to reach the target week's Monday
+            const start = new Date(startOfWeek1);
+            start.setDate(startOfWeek1.getDate() + (week - 1) * 7);
+
+            // The end of the week is 6 days after the start (Sunday)
+            const end = new Date(start);
+            end.setDate(start.getDate() + 6);
+
+            return { start, end };
+        }
+    </script>
+
 </body>
-
-
-
 </html>
