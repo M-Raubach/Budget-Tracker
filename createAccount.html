@@ -2,77 +2,49 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create New Account</title>
+    <title>Create Account</title>
     <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body class="signin-page">
 
-<div class="container">
-    <h2>Create New Account</h2>
+<div class="signin-container">
+    <h2>Create Account</h2>
 
     <form id="createAccountForm">
-        <input type="text" id="newUsername" placeholder="Enter Username" required>
-        <input type="email" id="newEmail" placeholder="Enter Email" required>
-        <input type="password" id="newPassword" placeholder="Enter Password" required>
+        <input type="text" id="newUsername" placeholder="Username" required>
+        <input type="email" id="newEmail" placeholder="Email" required>
+        <input type="password" id="newPassword" placeholder="Password" required>
         <button type="submit">Create Account</button>
     </form>
 
     <p id="message" class="success"></p>
     <p id="errorMessage" class="error"></p>
 
-    <div class="links">
+    <div class="signin-links">
         <a href="usersign.html">Back to Sign In</a>
     </div>
 </div>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const form = document.getElementById("createAccountForm");
-        const message = document.getElementById("message");
-        const errorMessage = document.getElementById("errorMessage");
+    document.getElementById("createAccountForm").addEventListener("submit", function(e) {
+        e.preventDefault();
 
-        form.addEventListener("submit", function (event) {
-            event.preventDefault();
+        const username = document.getElementById("newUsername").value.trim();
+        const email = document.getElementById("newEmail").value.trim();
+        const password = document.getElementById("newPassword").value.trim();
 
-            const username = document.getElementById("newUsername").value.trim();
-            const email = document.getElementById("newEmail").value.trim();
-            const password = document.getElementById("newPassword").value.trim();
+        let users = JSON.parse(localStorage.getItem("users")) || [];
 
-            message.textContent = "";
-            errorMessage.textContent = "";
+        if (users.some(u => u.username === username)) {
+            document.getElementById("errorMessage").textContent = "Username already exists.";
+            return;
+        }
 
-            let users = JSON.parse(localStorage.getItem("users")) || [];
+        users.push({ username, email, password });
+        localStorage.setItem("users", JSON.stringify(users));
 
-            const usernameExists = users.some(function (user) {
-                return user.username === username;
-            });
-
-            const emailExists = users.some(function (user) {
-                return user.email === email;
-            });
-
-            if (usernameExists) {
-                errorMessage.textContent = "That username already exists.";
-                return;
-            }
-
-            if (emailExists) {
-                errorMessage.textContent = "That email is already registered.";
-                return;
-            }
-
-            users.push({
-                username: username,
-                email: email,
-                password: password
-            });
-
-            localStorage.setItem("users", JSON.stringify(users));
-            message.textContent = "Account created successfully. You can now sign in.";
-
-            form.reset();
-        });
+        document.getElementById("message").textContent = "Account created successfully!";
+        this.reset();
     });
 </script>
 
