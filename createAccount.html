@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create New Account</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="container">
+    <h2>Create New Account</h2>
+
+    <form id="createAccountForm">
+        <input type="text" id="newUsername" placeholder="Enter Username" required>
+        <input type="email" id="newEmail" placeholder="Enter Email" required>
+        <input type="password" id="newPassword" placeholder="Enter Password" required>
+        <button type="submit">Create Account</button>
+    </form>
+
+    <p id="message" class="success"></p>
+    <p id="errorMessage" class="error"></p>
+
+    <div class="links">
+        <a href="usersign.html">Back to Sign In</a>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById("createAccountForm");
+        const message = document.getElementById("message");
+        const errorMessage = document.getElementById("errorMessage");
+
+        form.addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const username = document.getElementById("newUsername").value.trim();
+            const email = document.getElementById("newEmail").value.trim();
+            const password = document.getElementById("newPassword").value.trim();
+
+            message.textContent = "";
+            errorMessage.textContent = "";
+
+            let users = JSON.parse(localStorage.getItem("users")) || [];
+
+            const usernameExists = users.some(function (user) {
+                return user.username === username;
+            });
+
+            const emailExists = users.some(function (user) {
+                return user.email === email;
+            });
+
+            if (usernameExists) {
+                errorMessage.textContent = "That username already exists.";
+                return;
+            }
+
+            if (emailExists) {
+                errorMessage.textContent = "That email is already registered.";
+                return;
+            }
+
+            users.push({
+                username: username,
+                email: email,
+                password: password
+            });
+
+            localStorage.setItem("users", JSON.stringify(users));
+            message.textContent = "Account created successfully. You can now sign in.";
+
+            form.reset();
+        });
+    });
+</script>
+
+</body>
+</html>

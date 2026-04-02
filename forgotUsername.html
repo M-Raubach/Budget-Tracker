@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forgot Username</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="container">
+    <h2>Forgot Username</h2>
+
+    <form id="forgotUsernameForm">
+        <input type="email" id="recoveryEmail" placeholder="Enter Your Email" required>
+        <button type="submit">Find Username</button>
+    </form>
+
+    <p id="message" class="success"></p>
+    <p id="errorMessage" class="error"></p>
+
+    <div class="links">
+        <a href="usersign.html">Back to Sign In</a>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById("forgotUsernameForm");
+        const message = document.getElementById("message");
+        const errorMessage = document.getElementById("errorMessage");
+
+        form.addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const email = document.getElementById("recoveryEmail").value.trim();
+            const users = JSON.parse(localStorage.getItem("users")) || [];
+
+            message.textContent = "";
+            errorMessage.textContent = "";
+
+            const matchedUser = users.find(function (user) {
+                return user.email === email;
+            });
+
+            if (matchedUser) {
+                message.textContent =
+                    "Demo Mode: Username recovery simulated. In a real system, your username would be sent to your email. (For demo purposes, your username is: "
+                    + matchedUser.username + ")";
+            } else {
+                errorMessage.textContent = "No account found with that email.";
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
