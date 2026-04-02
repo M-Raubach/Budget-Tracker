@@ -10,11 +10,11 @@ document.addEventListener("DOMContentLoaded", function () {
         const username = document.getElementById("username").value.trim();
         const password = document.getElementById("password").value.trim();
 
-        const users = getUsers();
+        const users = JSON.parse(localStorage.getItem("users")) || [];
 
-        const matchedUser = users.find(function (user) {
-            return user.username === username && user.password === password;
-        });
+        const matchedUser = users.find(user =>
+            user.username === username && user.password === password
+        );
 
         if (matchedUser) {
             localStorage.setItem("currentUser", matchedUser.username);
@@ -25,29 +25,18 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    function getUsers() {
-        const users = localStorage.getItem("users");
-        return users ? JSON.parse(users) : [];
-    }
-
-    function saveUsers(users) {
-        localStorage.setItem("users", JSON.stringify(users));
-    }
-
     function initializeDefaultUser() {
-        let users = getUsers();
+        let users = JSON.parse(localStorage.getItem("users")) || [];
 
-        const demoUserExists = users.some(function (user) {
-            return user.username === "student";
-        });
+        const exists = users.some(user => user.username === "student");
 
-        if (!demoUserExists) {
+        if (!exists) {
             users.push({
                 username: "student",
                 email: "student@example.com",
                 password: "budget123"
             });
-            saveUsers(users);
+            localStorage.setItem("users", JSON.stringify(users));
         }
     }
 });
