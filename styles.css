@@ -96,8 +96,9 @@ th {
 
 /* --- User Sign In Pages --- */
 
+
 .signin-page {
-    background: linear-gradient(135deg, #111111, #1e1e1e);
+    background: linear-gradient(135deg, #f4f4f4, #e9ecef);
     min-height: 100vh;
 }
 
@@ -105,16 +106,16 @@ th {
     width: 100%;
     max-width: 420px;
     margin: 80px auto;
-    background-color: #232323;
+    background-color: #ffffff;
     padding: 35px 30px;
     border-radius: 14px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
-    border: 1px solid #333;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    border: 1px solid #ddd;
 }
 
 .signin-container h1,
 .signin-container h2 {
-    color: #ffffff;
+    color: #222;
     text-align: center;
     margin-top: 0;
 }
@@ -127,7 +128,7 @@ th {
 .signin-container h2 {
     font-size: 24px;
     margin-bottom: 25px;
-    color: #d6d6d6;
+    color: #555;
 }
 
 #loginForm,
@@ -144,17 +145,17 @@ th {
     width: 100%;
     box-sizing: border-box;
     padding: 12px;
-    border: 1px solid #444;
+    border: 1px solid #ccc;
     border-radius: 8px;
-    background-color: #111;
-    color: #fff;
+    background-color: #f9f9f9;
+    color: #222;
     font-size: 15px;
 }
 
 #loginForm input::placeholder,
 #createAccountForm input::placeholder,
 #form input::placeholder {
-    color: #9a9a9a;
+    color: #888;
 }
 
 #loginForm button,
@@ -175,7 +176,7 @@ th {
 #createAccountForm button:hover,
 #form button:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(44, 123, 229, 0.35);
+    box-shadow: 0 4px 12px rgba(44, 123, 229, 0.25);
 }
 
 .signin-links {
@@ -187,25 +188,25 @@ th {
 }
 
 .signin-links a {
-    color: #6ea8ff;
+    color: #2c7be5;
     text-decoration: none;
     font-size: 14px;
 }
 
 .signin-links a:hover {
-    color: #9fc5ff;
+    color: #1a5fb4;
     text-decoration: underline;
 }
 
 .error {
-    color: #ff6b6b;
+    color: #e74c3c;
     margin-top: 12px;
     text-align: center;
     font-size: 14px;
 }
 
 .success {
-    color: #58d68d;
+    color: #27ae60;
     margin-top: 12px;
     text-align: center;
     font-size: 14px;
