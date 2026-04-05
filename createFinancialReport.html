@@ -90,32 +90,10 @@
     </div>
 
     <script>
-        // Should the team prefer, I can move the javascipt portion to a seperate file
-        
-        // ─── Sample Data ──────────────────────────────────────────────────────────
-        // Hardcoded transactions used for testing since the backend isn't connected yet
-        // Each object has: type (income/expense), amount, category, date, description
-        const transactions = [
-            { type: 'income',  amount: 2500, category: 'Paycheck',  date: '2026-03-01', description: 'March Paycheck' },
-            { type: 'income',  amount: 200,  category: 'Freelance', date: '2026-03-10', description: 'Side work' },
-            { type: 'expense', amount: 950,  category: 'Rent',      date: '2026-03-01', description: 'March Rent' },
-            { type: 'expense', amount: 85,   category: 'Groceries', date: '2026-03-05', description: 'Grocery Store' },
-            { type: 'expense', amount: 45,   category: 'Groceries', date: '2026-03-15', description: 'Weekly Groceries' },
-            { type: 'expense', amount: 60,   category: 'Utilities', date: '2026-03-08', description: 'Electric Bill' },
-            { type: 'expense', amount: 30,   category: 'Gas',       date: '2026-03-12', description: 'Gas Station' },
-            { type: 'income',  amount: 2500, category: 'Paycheck',  date: '2026-02-01', description: 'February Paycheck' },
-            { type: 'expense', amount: 950,  category: 'Rent',      date: '2026-02-01', description: 'February Rent' },
-            { type: 'expense', amount: 110,  category: 'Groceries', date: '2026-02-10', description: 'Grocery Run' },
-            { type: 'income',  amount: 2500, category: 'Paycheck',  date: '2026-01-01', description: 'January Paycheck' },
-            { type: 'expense', amount: 950,  category: 'Rent',      date: '2026-01-01', description: 'January Rent' },
-            { type: 'expense', amount: 75,   category: 'Groceries', date: '2026-01-18', description: 'Grocery Store' },
-            { type: 'expense', amount: 120,  category: 'Dining',    date: '2026-01-22', description: 'Restaurants' },
-            { type: 'income',  amount: 300,  category: 'Freelance', date: '2026-03-23', description: 'Weekly freelance' },
-            { type: 'expense', amount: 55,   category: 'Groceries', date: '2026-03-24', description: 'Grocery Store' },
-            { type: 'expense', amount: 20,   category: 'Gas',       date: '2026-03-25', description: 'Gas Station' }
-        ];
+        // Load transactions from localStorage or start with an empty array if none exist
+        const transactions = JSON.parse(localStorage.getItem('transactions')) || [];
 
-        // ─── updateDateInput() ────────────────────────────────────────────────────
+        // updateDateInput()
         // Runs every time the user changes the time period dropdown
         // Shows the correct date input (month/week/year) and hides the other two
         function updateDateInput() {
@@ -153,7 +131,7 @@
             }
         }
 
-        // ─── generateReport() ─────────────────────────────────────────────────────
+        // generateReport() 
         // Runs when the user clicks Generate Report
         // Reads the selected period and date, filters the transactions, then calls renderReport()
         function generateReport() {
@@ -206,7 +184,7 @@
             renderReport(filtered, titleText);
         }
 
-        // ─── renderReport() ───────────────────────────────────────────────────────
+        // renderReport()
         // Takes a filtered list of transactions and builds the report output on the page
         // Does the actual math. Uses filter() to separate income from expenses, then reduce() to add them up. 
         // The category breakdown builds an object by looping through expenses and grouping by category name, then injects a table row for each one.
@@ -232,7 +210,7 @@
             document.getElementById('rExpenses').textContent = fmt(expenses);
             document.getElementById('rBalance').textContent  = fmt(balance);
 
-            // ── Category Breakdown ──
+            // Category Breakdown 
             // Build an object where each key is a category name and value is the total spent
             // e.g. { Rent: 950, Groceries: 185, Gas: 30 }
             const cats = {};
@@ -260,14 +238,14 @@
                 });
         }
 
-        // ─── fmt() ────────────────────────────────────────────────────────────────
+        // fmt()
         // Helper to format a number as a dollar amount with two decimal places
         // e.g. fmt(1245) returns "$1,245.00"
         function fmt(n) {
             return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
 
-        // ─── getWeekRange() ───────────────────────────────────────────────────────
+        // getWeekRange()
         // Given a year and ISO week number, returns the start (Monday) and end (Sunday) dates
         // This helper is needed because the week input gives us "2026-W13" not actual dates
         function getWeekRange(year, week) {
