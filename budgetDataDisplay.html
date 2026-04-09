@@ -5,13 +5,180 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
     <link rel="stylesheet" href="styles.css">
+    
 </head>
 <body>
-    <h1>Welcome To Your Budget!</h1>
-    <p>This is the where the user's budget will display.</p>
+    <div class="container">
+        <h1>Welcome To Your Budget!</h1>
 
-    <a href="editBudget.html" class="button">Edit Budget</a>
-    <a href="createFinancialReport.html" class="button">Create Financial Report</a>
+        <div class="cards">
+            <div class="card"><h3>Total Income</h3><p id="totalIncome">$0.00</p></div>
+            <div class="card"><h3>Total Expenses</h3><p id="totalExpenses">$0.00</p></div>
+            <div class="card"><h3>Balance</h3><p id="balance">$0.00</p></div>
+        </div>
+
+        <div class="grid">
+            <div>
+                <h2>Recent Transactions</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Category</th>
+                            <th>Amount</th>
+                            <th>Description</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactionList">
+                        <!-- Rows populated by savetransaction.js -->
+                    </tbody>
+                </table>
+
+                <div class="buttons" style="margin-top:18px;">
+                    <a href="editBudget.html" class="button">Edit Budget</a>
+                    <a href="createFinancialReport.html" class="button">Create Financial Report</a>
+                </div>
+
+                <div id="addTransaction">
+                    <h3>Add Transaction</h3>
+                    <form id="transactionForm" onsubmit="return false;">
+                        <div class="row">
+                            <select id="type">
+                                <option value="income">Income</option>
+                                <option value="expense">Expense</option>
+                            </select>
+                            <input id="category" placeholder="Category" />
+                        </div>
+                        <div class="row" style="margin-top:8px;">
+                            <input id="amount" placeholder="Amount" />
+                            <input id="date" type="date" />
+                        </div>
+                        <label for="description">Description</label>
+                        <textarea id="description" rows="2"></textarea>
+                        <div style="margin-top:8px; display:flex; gap:8px; align-items:center">
+                            <button type="button" class="button" id="saveBtn">Save Transaction</button>
+                            <span id="message"></span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div>
+                <div class="breakdown">
+                    <h3>Category Breakdown</h3>
+                    <div id="breakdownList">
+                        <!-- category rows inserted here -->
+                    </div>
+                </div>
+
+                <div class="breakdown" style="margin-top:12px;">
+                    <h3>Quick Actions</h3>
+                    <div style="display:flex; flex-direction:column; gap:8px; margin-top:8px;">
+                        <button id="exportCsv" class="button">Export CSV</button>
+                        <button id="clearAll" class="button" style="background:#e74c3c">Clear All Transactions</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="savetransaction.js"></script>
+    <script>
+        function updateSummary() {
+            const transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+            let income = 0, expenses = 0;
+            transactions.forEach(t => {
+                const amt = parseFloat(t.amount) || 0;
+                if (t.type === 'income') income += amt;
+                else expenses += amt;
+            });
+            document.getElementById('totalIncome').textContent = '$' + income.toFixed(2);
+            document.getElementById('totalExpenses').textContent = '$' + expenses.toFixed(2);
+            document.getElementById('balance').textContent = '$' + (income - expenses).toFixed(2);
+        }
+
+        function updateCategoryBreakdown() {
+            const transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+            const map = {};
+            let total = 0;
+            transactions.forEach(t => {
+                const cat = t.category || 'Uncategorized';
+                const amt = parseFloat(t.amount) || 0;
+                if (!map[cat]) map[cat] = 0;
+                map[cat] += amt;
+                total += amt;
+            });
+
+            const container = document.getElementById('breakdownList');
+            container.innerHTML = '';
+            const entries = Object.entries(map).sort((a,b)=>b[1]-a[1]);
+            if (entries.length === 0) {
+                container.innerHTML = '<p>No data yet</p>';
+                return;
+            }
+            entries.forEach(([cat,amt])=>{
+                const perc = total ? Math.round((amt/total)*100) : 0;
+                const row = document.createElement('div');
+                row.className = 'category-row';
+                row.innerHTML = '<div>' + cat + '</div><div>' + amt.toFixed(2) + ' (' + perc + '%)</div>';
+                const bar = document.createElement('div');
+                bar.className = 'bar';
+                const inner = document.createElement('i');
+                inner.style.width = (perc) + '%';
+                bar.appendChild(inner);
+                container.appendChild(row);
+                container.appendChild(bar);
+            });
+        }
+
+        // Hook save button to call existing saveTransaction() then update UI
+        document.addEventListener('DOMContentLoaded', function(){
+            const saveBtn = document.getElementById('saveBtn');
+            const exportBtn = document.getElementById('exportCsv');
+            const clearBtn = document.getElementById('clearAll');
+
+            function refresh() { updateSummary(); updateCategoryBreakdown(); }
+
+            saveBtn.addEventListener('click', function(){
+                // call function defined in savetransaction.js
+                if (typeof saveTransaction === 'function') {
+                    saveTransaction();
+                    // allow savetransaction to update table, then refresh summaries
+                    setTimeout(refresh, 50);
+                } else {
+                    alert('Save function not available.');
+                }
+            });
+
+            exportBtn.addEventListener('click', function(){
+                const transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+                if (!transactions.length) { alert('No transactions to export'); return; }
+                const header = ['type','category','amount','description','date'];
+                const csv = [header.join(',')].concat(transactions.map(t=>[
+                    t.type, '"'+(t.category||'')+'"', t.amount, '"'+(t.description||'')+'"', t.date
+                ].join(','))).join('\n');
+                const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a'); a.href = url; a.download = 'transactions.csv'; a.click(); URL.revokeObjectURL(url);
+            });
+
+            clearBtn.addEventListener('click', function(){
+                if (!confirm('Clear all transactions? This cannot be undone.')) return;
+                localStorage.removeItem('transactions');
+                document.getElementById('transactionList').innerHTML = '';
+                refresh();
+            });
+
+            // initial refresh after savetransaction's loadTransactions runs
+            setTimeout(refresh, 50);
+        });
+
+        // ensure immediate update if script executed after DOM load
+        updateSummary();
+        updateCategoryBreakdown();
+    </script>
+    <script src="mock_data.js"></script>
 
 </body>
 
