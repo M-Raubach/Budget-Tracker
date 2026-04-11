@@ -230,3 +230,159 @@ th {
 #addTransaction input, #addTransaction select, #addTransaction textarea { width:100%; padding:8px; box-sizing:border-box }
 #addTransaction .row { display:flex; gap:8px }
 #addTransaction .row > * { flex:1 }
+
+/* --- Scoped Edit Budget Page Styles  --- */
+
+.edit-budget-page {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+.edit-budget-page .container {
+    width: 80%;
+    max-width: 900px;
+    margin: 40px auto;
+    background-color: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+}
+
+.edit-budget-page h1,
+.edit-budget-page h2 {
+    color: #333;
+}
+
+.edit-budget-page .form-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 30px;
+}
+
+.edit-budget-page label {
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.edit-budget-page input,
+.edit-budget-page select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+.edit-budget-page .note {
+    font-size: 13px;
+    color: #666;
+    margin-top: -5px;
+    margin-bottom: 5px;
+}
+
+.edit-budget-page .buttons {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+}
+
+.edit-budget-page .buttons button {
+    background-color: #2c7be5;
+    color: white;
+    border: none;
+    padding: 10px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.edit-budget-page .buttons button:hover {
+    background-color: #1a5fb4;
+}
+
+.edit-budget-page #message {
+    font-weight: bold;
+    margin-top: 10px;
+    text-align: left;
+}
+
+.edit-budget-page .error {
+    color: #e74c3c;
+}
+
+.edit-budget-page .success {
+    color: #27ae60;
+}
+
+.edit-budget-page .info {
+    color: #2c7be5;
+}
+
+.edit-budget-page table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.edit-budget-page table,
+.edit-budget-page th,
+.edit-budget-page td {
+    border: 1px solid #ccc;
+}
+
+.edit-budget-page th,
+.edit-budget-page td {
+    padding: 12px;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.edit-budget-page th {
+    background-color: #f0f0f0;
+}
+
+.edit-budget-page .actions-cell {
+    white-space: nowrap;
+}
+
+.edit-budget-page .action-btn {
+    border: none;
+    padding: 8px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    color: white;
+    margin-right: 6px;
+    font-size: 14px;
+}
+
+.edit-budget-page .edit-btn {
+    background-color: #2c7be5;
+}
+
+.edit-budget-page .edit-btn:hover {
+    background-color: #1a5fb4;
+}
+
+.edit-budget-page .delete-btn {
+    background-color: #e74c3c;
+}
+
+.edit-budget-page .delete-btn:hover {
+    background-color: #c0392b;
+}
+
+.edit-budget-page .button {
+    padding: 10px 20px;
+    background-color: #2c7be5;
+    color: white;
+    text-decoration: none;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: inline-block;
+    font-size: 16px;
+}
+
+.edit-budget-page .button:hover {
+    background-color: #1a5fb4;
+}
