@@ -214,13 +214,19 @@ th {
 
 /* Dashboard styles */
 .cards { display:flex; gap:16px; margin:18px 0 24px 0; }
-.card { background:#fff; padding:16px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.06); flex:1 }
+.card { background:#fff; padding:16px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.18); flex:1 }
 .card h3 { margin:0 0 8px 0; font-size:14px; color:#666 }
 .card p { font-size:20px; margin:0; font-weight:700 }
 
 .grid { display:grid; grid-template-columns: 1fr 360px; gap:20px; align-items:start }
 
-.breakdown { background:#fff; padding:16px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.06) }
+#addTransaction { margin-top:18px; background:#fff; padding:14px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.18) }
+#addTransaction label { display:block; margin:8px 0 4px 0 }
+#addTransaction input, #addTransaction select, #addTransaction textarea { width:100%; padding:8px; box-sizing:border-box }
+#addTransaction .row { display:flex; gap:8px }
+#addTransaction .row > * { flex:1 }
+
+.breakdown { background:#fff; padding:16px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.18) }
 .bar { height:18px; background:#e6eefb; border-radius:9px; overflow:hidden; margin:8px 0 }
 .bar > i { display:block; height:100%; background:#2c7be5 }
 .category-row { display:flex; justify-content:space-between; align-items:center; gap:12px }

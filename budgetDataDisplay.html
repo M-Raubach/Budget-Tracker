@@ -40,28 +40,7 @@
                     <a href="createFinancialReport.html" class="button">Create Financial Report</a>
                 </div>
 
-                <div id="addTransaction">
-                    <h3>Add Transaction</h3>
-                    <form id="transactionForm" onsubmit="return false;">
-                        <div class="row">
-                            <select id="type">
-                                <option value="income">Income</option>
-                                <option value="expense">Expense</option>
-                            </select>
-                            <input id="category" placeholder="Category" />
-                        </div>
-                        <div class="row" style="margin-top:8px;">
-                            <input id="amount" placeholder="Amount" />
-                            <input id="date" type="date" />
-                        </div>
-                        <label for="description">Description</label>
-                        <textarea id="description" rows="2"></textarea>
-                        <div style="margin-top:8px; display:flex; gap:8px; align-items:center">
-                            <button type="button" class="button" id="saveBtn">Save Transaction</button>
-                            <span id="message"></span>
-                        </div>
-                    </form>
-                </div>
+                <!-- Add Transaction removed per request -->
             </div>
 
             <div>
@@ -140,16 +119,18 @@
 
             function refresh() { updateSummary(); updateCategoryBreakdown(); }
 
-            saveBtn.addEventListener('click', function(){
-                // call function defined in savetransaction.js
-                if (typeof saveTransaction === 'function') {
-                    saveTransaction();
-                    // allow savetransaction to update table, then refresh summaries
-                    setTimeout(refresh, 50);
-                } else {
-                    alert('Save function not available.');
-                }
-            });
+            if (saveBtn) {
+                saveBtn.addEventListener('click', function(){
+                    // call function defined in savetransaction.js
+                    if (typeof saveTransaction === 'function') {
+                        saveTransaction();
+                        // allow savetransaction to update table, then refresh summaries
+                        setTimeout(refresh, 50);
+                    } else {
+                        alert('Save function not available.');
+                    }
+                });
+            }
 
             exportBtn.addEventListener('click', function(){
                 const transactions = JSON.parse(localStorage.getItem('transactions')) || [];
