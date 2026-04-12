@@ -64,8 +64,8 @@
                 </tbody>
             </table>
 
-            <h2>Category Breakdown</h2>
-            <!-- Second table showing spending broken down by category -->
+            <h2>Income Breakdown</h2>
+            <!-- Table showing income broken down by category -->
             <table>
                 <thead>
                     <tr>
@@ -74,7 +74,21 @@
                     </tr>
                 </thead>
                 <!-- tbody is empty here - rows are built and injected by renderReport() -->
-                <tbody id="categoryList">
+                <tbody id="incomeList">
+                </tbody>
+            </table>
+
+            <h2>Expense Breakdown</h2>
+            <!-- Table showing expenses broken down by category -->
+            <table>
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <!-- tbody is empty here - rows are built and injected by renderReport() -->
+                <tbody id="expenseList">
                 </tbody>
             </table>
 
@@ -210,32 +224,57 @@
             document.getElementById('rExpenses').textContent = fmt(expenses);
             document.getElementById('rBalance').textContent  = fmt(balance);
 
-            // Category Breakdown 
-            // Build an object where each key is a category name and value is the total spent
-            // e.g. { Rent: 950, Groceries: 185, Gas: 30 }
-            const cats = {};
-            data.filter(t => t.type === 'expense').forEach(t => {
+            // Income Breakdown
+            // Build an object where each key is a category name and value is the total earned
+            // e.g. { Salary: 3200, Freelance: 450 }
+            const incomeCats = {};
+            data.filter(t => t.type === 'income').forEach(t => {
                 // If the category already exists, add to it; otherwise start it at 0 then add
-                cats[t.category] = (cats[t.category] || 0) + t.amount;
+                incomeCats[t.category] = (incomeCats[t.category] || 0) + t.amount;
             });
 
-            const tbody = document.getElementById('categoryList');
-            tbody.innerHTML = ''; // Clear any previous results before adding new rows
+            const incomeTbody = document.getElementById('incomeList');
+            incomeTbody.innerHTML = ''; // Clear any previous results before adding new rows
 
-            // If there are no expense categories, show a message instead of an empty table
-            if (Object.keys(cats).length === 0) {
-                tbody.innerHTML = '<tr><td colspan="2">No expense data for this period.</td></tr>';
-                return;
+            // If there are no income categories, show a message instead of an empty table
+            if (Object.keys(incomeCats).length === 0) {
+                incomeTbody.innerHTML = '<tr><td colspan="2">No income data for this period.</td></tr>';
+            } else {
+                // Sort categories from highest to lowest amount, then build a table row for each
+                Object.entries(incomeCats)
+                    .sort((a, b) => b[1] - a[1])
+                    .forEach(([cat, total]) => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = '<td>' + cat + '</td><td>' + fmt(total) + '</td>';
+                        incomeTbody.appendChild(row);
+                    });
             }
 
-            // Sort categories from highest to lowest spending, then build a table row for each
-            Object.entries(cats)
-                .sort((a, b) => b[1] - a[1])
-                .forEach(([cat, total]) => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = '<td>' + cat + '</td><td>' + fmt(total) + '</td>';
-                    tbody.appendChild(row);
-                });
+            // Expense Breakdown
+            // Build an object where each key is a category name and value is the total spent
+            // e.g. { Rent: 950, Groceries: 185, Gas: 30 }
+            const expenseCats = {};
+            data.filter(t => t.type === 'expense').forEach(t => {
+                // If the category already exists, add to it; otherwise start it at 0 then add
+                expenseCats[t.category] = (expenseCats[t.category] || 0) + t.amount;
+            });
+
+            const expenseTbody = document.getElementById('expenseList');
+            expenseTbody.innerHTML = ''; // Clear any previous results before adding new rows
+
+            // If there are no expense categories, show a message instead of an empty table
+            if (Object.keys(expenseCats).length === 0) {
+                expenseTbody.innerHTML = '<tr><td colspan="2">No expense data for this period.</td></tr>';
+            } else {
+                // Sort categories from highest to lowest spending, then build a table row for each
+                Object.entries(expenseCats)
+                    .sort((a, b) => b[1] - a[1])
+                    .forEach(([cat, total]) => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = '<td>' + cat + '</td><td>' + fmt(total) + '</td>';
+                        expenseTbody.appendChild(row);
+                    });
+            }
         }
 
         // fmt()
